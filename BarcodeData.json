@@ -1,0 +1,20 @@
+{
+    "Produtos": [
+        {
+            "CodigoBarras": "1",
+            "Nome": "1"
+        },
+        {
+            "CodigoBarras": "2",
+            "Nome": "2"
+        },
+        {
+            "CodigoBarras": "3",
+            "Nome": "3"
+        },
+        {
+            "CodigoBarras": "4",
+            "Nome": "4"
+        }
+    ]
+}
