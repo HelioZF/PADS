@@ -5,7 +5,6 @@ library(ISLR)
 library(skimr)
 library(modeldata)
 
-
 # dados -------------------------------------------------------------------
 
 data(mlc_churn)
@@ -42,13 +41,28 @@ splits <- initial_split(mlc_churn, prop = .8, strata = "churn")
 treinamento <- training(splits)
 teste       <- testing(splits)
 
-
-
 # mod 1: total_day_minutes e total_night_calls ---------------------------------
 
-
+fit1 <- glm(churn ~  total_day_minutes + total_night_calls,
+            data = treinamento, family = "binomial")
 # mod 2: international_plan, number_customer_service_calls e total_day_charge --
 
+fit2 <- glm(churn ~ international_plan + number_customer_service_calls +
+              total_day_charge, family = "binomial", data = treinamento)
 
 # mod 3: com todas as variáveis do banco ---------------------------------------
 
+fit3 <- glm(churn ~ ., family = "binomial", data = treinamento)
+
+tibble(probabilidade = predict(fit1, teste, type = "response"), 
+       churn = teste$churn,
+       modelo = "modelo 1") |>
+  bind_rows(tibble(probabilidade = predict(fit2, teste, type = "response"),
+                   churn = teste$churn,
+                   modelo = "modelo 2")) |>
+  bind_rows(tibble(probabilidade = predict(fit3, teste, type = "response"),
+                   churn = teste$churn,
+                   modelo = "modelo 3")) |>
+  group_by(modelo) |>
+  roc_curve(churn, probabilidade, event_level = "second")|> 
+  autoplot()
