@@ -4,7 +4,7 @@ library(pROC)
 library(yardstick)
 library(ISLR)
 library(skimr)
-
+#teste de git
 
 
 # leitura dos dados -------------------------------------------------------
