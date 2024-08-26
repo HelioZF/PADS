@@ -21,7 +21,7 @@ data(mlc_churn)
 # source files states that the data are "artificial based on claims similar to real world".
 
 
-?mlc_churn 
+#?mlc_churn 
 
 mlc_churn %>% 
   group_by(churn) %>% 
@@ -66,6 +66,7 @@ resultados$auc[resultados$modelo == "logistica"] <- roc(mlc_churn$churn[-idx], p
 X_tr <- model.matrix(churn ~ ., mlc_churn)[idx, -1]
 y_tr <- mlc_churn$churn[idx]
 
+
 X_test <- model.matrix(churn ~ ., mlc_churn)[-idx,-1]
 y_test <- mlc_churn$churn[-idx]
 
@@ -91,7 +92,6 @@ prob_ridge <- as.numeric(predict(ridge, newx = X_test, type = "response", s = la
 resultados$acuracia[resultados$modelo == "ridge"] <- mean(y_test == ifelse(prob_ridge >= corte, "yes", "no"))
 
 
-
 # Forma 1
 
 resultados$auc[resultados$modelo == "ridge"] <- roc(mlc_churn$churn[-idx], prob_ridge)$auc
@@ -107,6 +107,7 @@ tibble(modelo = "logística",
                    classe = mlc_churn$churn[-idx])) %>% 
   group_by(modelo) %>% 
   # roc_auc(classe, probabilidade, event_level = "second") 
+
   roc_curve(classe, probabilidade, event_level = "second") %>% 
   autoplot()
 
@@ -115,11 +116,63 @@ tibble(modelo = "logística",
 
 
 # lasso -------------------------------------------------------------------
+# Convertendo a variável alvo para numérica
+y_tr <- ifelse(mlc_churn$churn[idx] == "yes", 1, 0)
+y_test <- ifelse(mlc_churn$churn[-idx] == "yes", 1, 0)
 
+lasso <- glmnet(X_tr, y_tr, alpha = 1, nlambda = 1000)
+
+plot_glmnet(lasso, lwd = 2, cex.lab = 1.3, xvar = "lambda")
+
+cv_lasso <- cv.glmnet(X_tr, y_tr, alpha = 1, family = "binomial")
+
+lambda_lasso <- cv_lasso$lambda.1se
+
+prob_lasso <- as.numeric(predict(lasso, newx = X_test, type = "response", s = lambda_lasso))
+
+resultados$acuracia[resultados$modelo == "lasso"] <- mean(y_test == ifelse(prob_lasso >= corte, 1, 0))
+
+resultados$auc[resultados$modelo == "lasso"] <- roc(y_test, prob_lasso)$auc
+
+# Calculando a curva ROC
+roc_lasso <- roc(y_test, prob_lasso)
+# Plotando a curva ROC
+plot(roc_lasso, main = "Curva ROC - Modelo Lasso", col = "blue", lwd = 2)
+plot(cv_lasso)
 
 # elastic-net -------------------------------------------------------------
+# Ajuste do modelo Elastic Net
+elastic_net <- glmnet(X_tr, y_tr, alpha = 0.5, nlambda = 1000)
 
+# Validação cruzada para escolher o melhor lambda
+cv_elastic_net <- cv.glmnet(X_tr, y_tr, alpha = 0.5, family = "binomial")
+lambda_elastic_net <- cv_elastic_net$lambda.1se
+
+# Gerando as probabilidades preditivas para o conjunto de teste
+prob_elastic_net <- as.numeric(predict(elastic_net, newx = X_test, type = "response", s = lambda_elastic_net))
+
+# Calculando a curva ROC
+roc_elastic_net <- roc(y_test, prob_elastic_net)
+#Calculando a acurácia
+resultados$acuracia[resultados$modelo == "elastic-net"] <- mean(y_test == ifelse(prob_elastic_net >= corte, 1, 0))
+
+# Calculando a AUC
+resultados$auc[resultados$modelo == "elastic-net"] <- roc(y_test, prob_elastic_net)$auc
+
+
+# Plotando a curva ROC
+plot(roc_elastic_net, main = "Curva ROC - Modelo Elastic Net", col = "red", lwd = 2)
 
 
 resultados
+
+
+
+
+
+
+
+
+
+
 
