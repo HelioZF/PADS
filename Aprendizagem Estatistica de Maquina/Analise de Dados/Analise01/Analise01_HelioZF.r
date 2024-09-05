@@ -79,11 +79,22 @@ ggplot(distritos, aes(x = reorder(District, -n), y = n)) +
     axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1), # Ajusta o ângulo e posicionamento dos rótulos #nolint
     plot.margin = margin(t = 10, r = 10, b = 50, l = 10) # Aumenta a margem inferior para evitar cortes nos textos #nolint
   )
-  # Confesso que utilizei o chatGPT para fazer a legenda. #nolint
-
+ 
 # e) Faça um filtro nos dados considerando apenas os dados de aluguel (Negotiation.Type == “rent”), #nolint
 #    separe  os  dados  em  dois  conjuntos  (treinamento  e  teste)  e  avalie
 #    o  erro  de  previsão  para  os seguintes modelos:
+
+# Filtrando o modelo
+dados_modelo <- dados %>%
+  filter(Negotiation.Type ==  "rent") %>%
+    select(- Negotiation.Type)
+glimpse(dados_modelo)
+colnames(dados_modelo)
+# separando o database em treino e teste
+split <- initial_split(dados_modelo, prop = .8, strata =  )
+
+treinamento <- training(split)
+teste <- testing(split)
 
 # i) regressão linear
 
