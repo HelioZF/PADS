@@ -187,9 +187,3 @@ models_tibble
 # v) floresta aleatória
 
 # obs: A definição das preditoras utilizadas no modelo é de livre escolha
-
-
-
-
-
-
