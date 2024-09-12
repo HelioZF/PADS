@@ -8,6 +8,8 @@ library(yardstick)
 library(rsample)
 library(dplyr)
 library(glmnet)
+library(rpart)
+library(partykit)
 
 dados <- read.csv("Aprendizagem Estatistica de Maquina/Analise de Dados/Analise01/sao-paulo-properties-april-2019.csv", sep = ",") # nolint
 head(dados)
@@ -182,8 +184,45 @@ cat("rsq:", rsq_result$.estimate, "\n")
 models_tibble$RQM[models_tibble$modelo == "LASSO"] <- rsq_result$.estimate
 models_tibble
 
-# iv) árvore de decisão
+# iv) árvore de decisão ------------------------------------------
+library(rpart.plot)
+tree <- rpart(Price ~ ., data = treinamento, method = "anova")
+windows() + rpart.plot(tree, roundint = FALSE)
+windows() + plotcp(tree)
+
+cp_ot <- tree$cptable[which.min(tree$cptable[, "xerror"]), "CP"]
+cp_ot
+
+tree <- prune(tree, cp = cp_ot)
+windows() + rpart.plot(tree, roundint = FALSE)
+tree_predict <- predict(tree, newdata = teste)
+
+resultados_arv_decisao <- tibble(truth = y_test, estimate = tree_predict)
+rsq_result <- rsq(resultados_arv_decisao, truth = truth, estimate = estimate)
+cat("R² Árvore de Decisão:", rsq_result$.estimate, "\n")
+
+models_tibble$RQM[models_tibble$modelo == "Arv.Decisão"] <- rsq_result$.estimate
+models_tibble
 
 # v) floresta aleatória
+library(ranger)
+
+rd_forest_model <- ranger(
+  dependent.variable.name = "Price",
+  data = treinamento,
+  num.trees = 500,
+  mtry = floor(sqrt(ncol(treinamento) - 1)),
+  importance = 'impurity', 
+  seed = 123 
+)
+
+predicoes_rd_forest <- predict(rd_forest_model, data = teste)$predictions
+
+resultados_rd_forest <- tibble(truth = y_test, estimate = predicoes_rd_forest)
+rsq_result_rd_forest <- rsq(resultados_rd_forest, truth = truth, estimate = estimate)
+cat("R² Floresta Aleatória (ranger):", rsq_result_rd_forest$.estimate, "\n")
+
+models_tibble$RQM[models_tibble$modelo == "Rd.Forest"] <- rsq_result_rd_forest$.estimate
+models_tibble
 
 # obs: A definição das preditoras utilizadas no modelo é de livre escolha
