@@ -11,6 +11,8 @@ library(glmnet)
 library(rpart)
 library(partykit)
 
+set.seed(907)
+
 dados <- read.csv("Aprendizagem Estatistica de Maquina/Analise de Dados/Analise01/sao-paulo-properties-april-2019.csv", sep = ",") # nolint
 head(dados)
 
@@ -70,7 +72,6 @@ ggplot(distritos, aes(x = reorder(District, -n), y = n)) +
     axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1), # Ajusta o ângulo e posicionamento dos rótulos #nolint
     plot.margin = margin(t = 10, r = 10, b = 50, l = 10) # Aumenta a margem inferior para evitar cortes nos textos #nolint
   )
- 
 
 # E) ---------------------------------------------------------------------------
 
@@ -84,7 +85,7 @@ colnames(dados_modelo)
 # Criando uma tabela para comparar os modelos
 models_tibble <- tibble(modelo = c("lm", "ridge", "LASSO", 
                                    "Arv.Decisão", "Rd.Forest"),
-                        RQM = NA * length(modelo))
+                        RQM = NA * length(modelo), RMSE = NA * length(modelo))
 
 models_tibble
 # i) regressão linear ----------------------------------------------------------
@@ -97,9 +98,7 @@ dados_modelo <- dados_modelo %>%
 dados_modelo <- dados_modelo %>%
   select(where(~ n_distinct(.) > 1))
 
-# Removendo variáveis categóricas com apenas um nível
-dados_modelo <- dados_modelo %>% select(-which(unique_levels == 1))
-
+glimpse(dados_modelo)
 # Separando o database em treino e teste
 split <- initial_split(dados_modelo, prop = 0.8, strata = Price)
 
@@ -122,9 +121,10 @@ resultados <- tibble(
 )
 # Calculando o R-quadrado (R²)
 rsq_result <- rsq(resultados, truth = truth, estimate = estimate)
-print(rsq_result)
+rmse_result <- rmse(resultados, truth = truth, estimate = estimate)
 
 models_tibble$RQM[models_tibble$modelo == "lm"] <- rsq_result$.estimate
+models_tibble$RMSE[models_tibble$modelo == "lm"] <- rmse_result$.estimate
 models_tibble
 
 # ii) regressão ridge ----------------------------------------------------------
@@ -158,9 +158,10 @@ predicoes <- predict(cv_ridge, s = best_lambda, newx = x_test)
 resultados <- tibble(truth = y_test, estimate = as.vector(predicoes))
 
 rsq_result <- rsq(resultados, truth = truth, estimate = estimate)
-cat("rsq:", rsq_result$.estimate, "\n")
+rmse_result <- rmse(resultados, truth = truth, estimate = estimate)
 
 models_tibble$RQM[models_tibble$modelo == "ridge"] <- rsq_result$.estimate
+models_tibble$RMSE[models_tibble$modelo == "ridge"] <- rmse_result$.estimate
 models_tibble
 # iii) regressão LASSO ---------------------------------------------------------
 
@@ -179,9 +180,11 @@ predicoes <- predict(cv_lasso, s = best_lambda, newx = x_test)
 resultados <- tibble(truth = y_test, estimate = as.vector(predicoes))
 
 rsq_result <- rsq(resultados, truth = truth, estimate = estimate)
-cat("rsq:", rsq_result$.estimate, "\n")
+rmse_result <- rmse(resultados, truth = truth, estimate = estimate)
 
 models_tibble$RQM[models_tibble$modelo == "LASSO"] <- rsq_result$.estimate
+models_tibble$RMSE[models_tibble$modelo == "LASSO"] <- rmse_result$.estimate
+
 models_tibble
 
 # iv) árvore de decisão ------------------------------------------
@@ -199,9 +202,11 @@ tree_predict <- predict(tree, newdata = teste)
 
 resultados_arv_decisao <- tibble(truth = y_test, estimate = tree_predict)
 rsq_result <- rsq(resultados_arv_decisao, truth = truth, estimate = estimate)
-cat("R² Árvore de Decisão:", rsq_result$.estimate, "\n")
+rmse_result <- rmse(resultados_arv_decisao, truth = truth, estimate = estimate)
 
 models_tibble$RQM[models_tibble$modelo == "Arv.Decisão"] <- rsq_result$.estimate
+models_tibble$RMSE[models_tibble$modelo == "Arv.Decisão"] <- rmse_result$.estimate
+
 models_tibble
 
 # v) floresta aleatória
@@ -220,9 +225,21 @@ predicoes_rd_forest <- predict(rd_forest_model, data = teste)$predictions
 
 resultados_rd_forest <- tibble(truth = y_test, estimate = predicoes_rd_forest)
 rsq_result_rd_forest <- rsq(resultados_rd_forest, truth = truth, estimate = estimate)
-cat("R² Floresta Aleatória (ranger):", rsq_result_rd_forest$.estimate, "\n")
+rmse_result_rd_forest <- rmse(resultados_rd_forest, truth = truth, estimate = estimate)
 
 models_tibble$RQM[models_tibble$modelo == "Rd.Forest"] <- rsq_result_rd_forest$.estimate
+models_tibble$RMSE[models_tibble$modelo == "Rd.Forest"] <- rmse_result_rd_forest$.estimate
+
 models_tibble
 
 # obs: A definição das preditoras utilizadas no modelo é de livre escolha 
+
+#Avaliação do erro:
+# Como podemos notar, a métrica RQM indica o quão bem nosso modelo foi capaz de explicar a variabilidade dos dados
+# Assim sendo o modelo que melhor explica os nossos dados é o que possuí o maior RQM. No caso o melhor modelo para prever
+# a variavel Price dentre os modelos treinado é o modelo de Random Forest, que possuí o maior RQM de 0.702.
+# Além do RQM também temos o RMSE que está com um valor alto para todos os modelos, isso deve-se a alta variabilidade
+# do banco de dados, uma proposta para poder melhorar nossas previsões é criar uma segmentação do banco de dados, com um
+# modelo preditor para cada segmentação, de forma a separar os casos, pois a depender da região e do tipo de apartamento 
+# o preço pode mudar abruptamente. Assim poderiamos gerar um modelo de decisão para decidir um modelo preditor para predizer
+# o preço de forma mais precisa.
