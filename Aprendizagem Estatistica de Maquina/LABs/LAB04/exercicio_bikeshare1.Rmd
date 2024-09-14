@@ -94,20 +94,34 @@ dados %>% dplyr::select(-c(casual,registered,bikers))%>% head()
 dados %>% group_by(hr) %>% summarise(soma=sum(bikers))
 dados %>% 
   ggplot(aes(x=hr,y=bikers), color=season, group=day) +
-  geom_lin
+  geom_line()
 ```
 
 *Pré Modelagem: Separação da base treino e teste, criação da tabela resumo para guardar as métricas de cada modelo testado, definição de métrica*
 
 ```{r}
+dados <- dados %>% dplyr::select(-c(casual, registered))
+```
+
+```{r}
+skim(dados)
 splits <- initial_split(dados, prop = .8, strata = "bikers")
+split_weather <- initial_split(dados, prop = .8, strata = "weathersit")
+ #	weathersit
 
 treino <- training(splits)
 teste <- testing(splits)
 
+treino_weather <- training(split_weather)
+teste_weather <- testing(split_weather)
+
 y_test = teste$bikers
+y_test_weather = teste_weather$bikers
   
 models_tibble <- tibble(modelo = c("Rd.Forest","Arv.Decisão","LASSO"),
+                        RQM = NA * length(modelo), RMSE = NA * length(modelo))
+
+splt_weather <- tibble(modelo = c("Rd.Forest","Arv.Decisão","LASSO"),
                         RQM = NA * length(modelo), RMSE = NA * length(modelo))
 ```
 
@@ -126,19 +140,50 @@ rd_forest_model <- ranger(
   importance = 'impurity', 
   seed = 123 
 )
-?rmse
+
 predicoes_rd_forest <- predict(rd_forest_model, data = teste)$predictions
 
 resultados_rd_forest <- tibble(truth = y_test, estimate = predicoes_rd_forest)
 rmse_result_rd_forest <- rmse(resultados_rd_forest, truth = truth, estimate = estimate)
 rsq_result_rd_forest <- rsq(resultados_rd_forest, truth = truth, estimate = estimate)
 
+
+
 cat("R² Floresta Aleatória (ranger):", rsq_result_rd_forest$.estimate, "\n")
 cat("RMSE Floresta Aleatória (ranger):", rmse_result_rd_forest$.estimate, "\n")
 
 models_tibble$RQM[models_tibble$modelo == "Rd.Forest"] <- rsq_result_rd_forest$.estimate
 models_tibble$RMSE[models_tibble$modelo == "Rd.Forest"] <- rmse_result_rd_forest$.estimate
+```
 
+```{r}
+library(ranger)
+library(yardstick)
+
+rd_forest_model <- ranger(
+  dependent.variable.name = "bikers",
+  data = treino_weather,
+  num.trees = 500,
+  mtry = floor(sqrt(ncol(treino_weather) - 1)),
+  importance = 'impurity', 
+  seed = 123 
+)
+
+predicoes_rd_forest <- predict(rd_forest_model, data = teste_weather)$predictions
+
+resultados_rd_forest <- tibble(truth = y_test_weather, estimate = predicoes_rd_forest)
+rmse_result_rd_forest <- rmse(resultados_rd_forest, truth = truth, estimate = estimate)
+rsq_result_rd_forest <- rsq(resultados_rd_forest, truth = truth, estimate = estimate)
+
+
+
+cat("R² Floresta Aleatória (ranger):", rsq_result_rd_forest$.estimate, "\n")
+cat("RMSE Floresta Aleatória (ranger):", rmse_result_rd_forest$.estimate, "\n")
+
+splt_weather$RQM[splt_weather$modelo == "Rd.Forest"] <- rsq_result_rd_forest$.estimate
+splt_weather$RMSE[splt_weather$modelo == "Rd.Forest"] <- rmse_result_rd_forest$.estimate
+
+splt_weather
 models_tibble
 ```
 
@@ -163,7 +208,32 @@ cat("RMSE Árvore de Decisão:", rmse_result_arv$.estimate, "\n")
 
 models_tibble$RQM[models_tibble$modelo == "Arv.Decisão"] <- rsq_result_arv$.estimate
 models_tibble$RMSE[models_tibble$modelo == "Arv.Decisão"] <- rmse_result_arv$.estimate
+
+```
+
+```{r}
+tree <- rpart(bikers ~ ., data = treino_weather, method = "anova")
+rpart.plot(tree, roundint = FALSE)
+#plotcp(tree)
+cp_ot <- tree$cptable[which.min(tree$cptable[, "xerror"]), "CP"]
+cp_ot
+
+tree <- prune(tree, cp = cp_ot)
+rpart.plot(tree, roundint = FALSE)
+tree_predict <- predict(tree, newdata = teste_weather)
+
+resultados_arv_decisao <- tibble(truth = y_test_weather, estimate = tree_predict)
+rmse_result_arv <- rmse(resultados_arv_decisao, truth = truth, estimate = estimate)
+rsq_result_arv <- rsq(resultados_arv_decisao, truth = truth, estimate = estimate)
+
+cat("R² Árvore de Decisão:", rsq_result_arv$.estimate, "\n")
+cat("RMSE Árvore de Decisão:", rmse_result_arv$.estimate, "\n")
+
+splt_weather$RQM[splt_weather$modelo == "Arv.Decisão"] <- rsq_result_arv$.estimate
+splt_weather$RMSE[splt_weather$modelo == "Arv.Decisão"] <- rmse_result_arv$.estimate
+
 models_tibble
+splt_weather
 ```
 
 **LASSO**
@@ -195,6 +265,39 @@ cat("rsq:", rsq_result_LASSO$.estimate, "\n")
 
 models_tibble$RQM[models_tibble$modelo == "LASSO"] <- rsq_result_LASSO$.estimate
 models_tibble$RMSE[models_tibble$modelo == "LASSO"] <- rmse_result_LASSO$.estimate
+models_tibble
+```
+
+```{r}
+library(glmnet)
+x_train <- model.matrix(bikers ~ .,
+                        data = treino_weather)
+
+y_train <- treino_weather$bikers
+
+x_test <- model.matrix(bikers ~ ., data = teste_weather)
+y_test <- teste_weather$bikers
+lasso_model <- glmnet(x_train, y_train, alpha = 1)
+
+#enconrando o melhor lambda
+cv_lasso <- cv.glmnet(x_train, y_train, alpha = 1)
+best_lambda <- cv_lasso$lambda.min
+cat("Melhor lambda:", best_lambda, "\n")
+
+# Fazendo previsões no conjunto de teste
+predicoes <- predict(cv_lasso, s = best_lambda, newx = x_test)
+
+# Calculando o RSQ para avaliar o modelo
+resultados <- tibble(truth = y_test, estimate = as.vector(predicoes))
+
+rmse_result_LASSO <- rmse(resultados, truth = truth, estimate = estimate)
+rsq_result_LASSO <- rsq(resultados, truth = truth, estimate = estimate)
+cat("rsq:", rsq_result_LASSO$.estimate, "\n")
+
+splt_weather$RQM[splt_weather$modelo == "LASSO"] <- rsq_result_LASSO$.estimate
+splt_weather$RMSE[splt_weather$modelo == "LASSO"] <- rmse_result_LASSO$.estimate
+
+splt_weather
 models_tibble
 ```
 
