@@ -1,0 +1,200 @@
+---
+title: "Laboratório 4"
+author: "PADS - AEM1"
+date: "2024-09-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ISLR2)
+library(rsample)
+library(ranger)
+library(rpart)
+library(partykit)
+library(rpart.plot)
+library(skimr)
+```
+
+
+## Base de dados
+
+O desafio no Lab4 será analisar dados de aluguel de bicicleta disponíveis no [repositorio da UCI](https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset)
+
+**Dicas**
+
+- pacote ISLR2 
+
+- Qual o tipo de variável é a minha resposta? 
+
+- Quais informações são minhas variáveis explicativas?
+
+- Qual a granularidade da minha base? 	
+
+**Roteiro**
+
+- Entendimento do Problema: classificação ou regressão? o que busco com o ajuste do modelo?
+
+- Preparação da Base: Algum filtro é necessário? Tratamento de missing?
+
+- Pré Modelagem: Separação da base treino e teste, criação da tabela resumo para guardar as métricas de cada modelo testado, definição de métrica 
+
+- Modelagem: Considerar Random Forest + Árvore + Outro método a escolha
+
+- Em Random Forest otimizar num.trees e mtry 
+
+- Em Árvore otimizar size of tree
+
+- Qual resultado do melhor modelo?
+
+- Após o modelo ajustado, como interpretamos esse modelo?
+
+- Criar um explicador para o modelo, com o pacote DALEX
+
+- Aplicar PDP, LIME
+
+**Links de referência das aulas de Árvore e Floresta Aleatória**
+
+- [Aula Árvore de Regressão e Classificação](https://tiagomendonca.github.io/aem105/)
+- [Aula Bagging e Floresta Aleatória](https://tiagomendonca.github.io/aem106/)
+
+
+
+**Materiais sobre interpretabilidade**
+
+[PDP - Dalex](https://bookdown.org/gaetan_lovey/data_analytics/dalex.html#model-profile)
+[Interpretable Machine Learning](https://christophm.github.io/interpretable-ml-book/)
+
+
+
+```{r}
+dados<- Bikeshare
+dados %>% skim()
+```
+
+## Primeiras Analises da Base
+
+Qual o tipo de variável é a minha resposta? 
+
+```{r}
+dados %>% dplyr::select(bikers) %>% head()
+```
+**Helio ZF <- realizando o LAB03**
+*Entendimento do Problema: classificação ou regressão? o que busco com o ajuste do modelo?*
+
+R: Dado o tipo do modelo creio que a regressão seja melhor, pois estamos tentando prever uma variavel númerica e não uma variavél categórica
+
+*Preparação da Base: Algum filtro é necessário? Tratamento de missing?*
+R: Como vimos pelo skim(), não há dados faltantes no dataset então não é necessário realizar um tratamento de missing. Talvez seja necessário aleterar os valores de string para valores numéricos para possibilitar os calculos do modelo.
+```{r}
+dados %>% dplyr::select(-c(casual,registered,bikers))%>% head()
+```
+```{r}
+dados %>% group_by(hr) %>% summarise(soma=sum(bikers))
+dados %>% 
+  ggplot(aes(x=hr,y=bikers), color=season, group=day) +
+  geom_lin
+```
+
+*Pré Modelagem: Separação da base treino e teste, criação da tabela resumo para guardar as métricas de cada modelo testado, definição de métrica*
+
+```{r}
+splits <- initial_split(dados, prop = .8, strata = "bikers")
+
+treino <- training(splits)
+teste <- testing(splits)
+
+y_test = teste$bikers
+  
+models_tibble <- tibble(modelo = c("Rd.Forest","Arv.Decisão","LASSO"),
+                        RQM = NA * length(modelo), RMSE = NA * length(modelo))
+```
+
+*Modelagem: Considerar Random Forest + Árvore + Outro método a escolha*
+
+**Random Forest**
+```{r}
+library(ranger)
+library(yardstick)
+
+rd_forest_model <- ranger(
+  dependent.variable.name = "bikers",
+  data = treino,
+  num.trees = 500,
+  mtry = floor(sqrt(ncol(treino) - 1)),
+  importance = 'impurity', 
+  seed = 123 
+)
+?rmse
+predicoes_rd_forest <- predict(rd_forest_model, data = teste)$predictions
+
+resultados_rd_forest <- tibble(truth = y_test, estimate = predicoes_rd_forest)
+rmse_result_rd_forest <- rmse(resultados_rd_forest, truth = truth, estimate = estimate)
+rsq_result_rd_forest <- rsq(resultados_rd_forest, truth = truth, estimate = estimate)
+
+cat("R² Floresta Aleatória (ranger):", rsq_result_rd_forest$.estimate, "\n")
+cat("RMSE Floresta Aleatória (ranger):", rmse_result_rd_forest$.estimate, "\n")
+
+models_tibble$RQM[models_tibble$modelo == "Rd.Forest"] <- rsq_result_rd_forest$.estimate
+models_tibble$RMSE[models_tibble$modelo == "Rd.Forest"] <- rmse_result_rd_forest$.estimate
+
+models_tibble
+```
+
+**Árvore**
+```{r}
+tree <- rpart(bikers ~ ., data = treino, method = "anova")
+rpart.plot(tree, roundint = FALSE)
+#plotcp(tree)
+cp_ot <- tree$cptable[which.min(tree$cptable[, "xerror"]), "CP"]
+cp_ot
+
+tree <- prune(tree, cp = cp_ot)
+rpart.plot(tree, roundint = FALSE)
+tree_predict <- predict(tree, newdata = teste)
+
+resultados_arv_decisao <- tibble(truth = y_test, estimate = tree_predict)
+rmse_result_arv <- rmse(resultados_arv_decisao, truth = truth, estimate = estimate)
+rsq_result_arv <- rsq(resultados_arv_decisao, truth = truth, estimate = estimate)
+
+cat("R² Árvore de Decisão:", rsq_result_arv$.estimate, "\n")
+cat("RMSE Árvore de Decisão:", rmse_result_arv$.estimate, "\n")
+
+models_tibble$RQM[models_tibble$modelo == "Arv.Decisão"] <- rsq_result_arv$.estimate
+models_tibble$RMSE[models_tibble$modelo == "Arv.Decisão"] <- rmse_result_arv$.estimate
+models_tibble
+```
+
+**LASSO**
+```{r}
+library(glmnet)
+x_train <- model.matrix(bikers ~ .,
+                        data = treino)
+
+y_train <- treino$bikers
+
+x_test <- model.matrix(bikers ~ ., data = teste)
+y_test <- teste$bikers
+lasso_model <- glmnet(x_train, y_train, alpha = 1)
+
+#enconrando o melhor lambda
+cv_lasso <- cv.glmnet(x_train, y_train, alpha = 1)
+best_lambda <- cv_lasso$lambda.min
+cat("Melhor lambda:", best_lambda, "\n")
+
+# Fazendo previsões no conjunto de teste
+predicoes <- predict(cv_lasso, s = best_lambda, newx = x_test)
+
+# Calculando o RSQ para avaliar o modelo
+resultados <- tibble(truth = y_test, estimate = as.vector(predicoes))
+
+rmse_result_LASSO <- rmse(resultados, truth = truth, estimate = estimate)
+rsq_result_LASSO <- rsq(resultados, truth = truth, estimate = estimate)
+cat("rsq:", rsq_result_LASSO$.estimate, "\n")
+
+models_tibble$RQM[models_tibble$modelo == "LASSO"] <- rsq_result_LASSO$.estimate
+models_tibble$RMSE[models_tibble$modelo == "LASSO"] <- rmse_result_LASSO$.estimate
+models_tibble
+```
+

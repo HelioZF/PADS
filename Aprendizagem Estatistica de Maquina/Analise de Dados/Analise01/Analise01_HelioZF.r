@@ -225,4 +225,4 @@ cat("R² Floresta Aleatória (ranger):", rsq_result_rd_forest$.estimate, "\n")
 models_tibble$RQM[models_tibble$modelo == "Rd.Forest"] <- rsq_result_rd_forest$.estimate
 models_tibble
 
-# obs: A definição das preditoras utilizadas no modelo é de livre escolha
+# obs: A definição das preditoras utilizadas no modelo é de livre escolha 
