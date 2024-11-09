@@ -8,7 +8,6 @@ library(factoextra)
 
 # carregar dados
 D <- read_csv("carros.csv")
-
 View(D)
 
 # preparação da matriz 
