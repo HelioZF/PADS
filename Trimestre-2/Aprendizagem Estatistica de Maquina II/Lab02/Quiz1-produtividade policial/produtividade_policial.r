@@ -69,7 +69,7 @@ print(contribuicoes_segunda_df)
 
 fviz_contrib(dados_pca, choice = "var", axes = 2, top = 10) +
   labs(title = "Segunda Componente Principal")
-
+#5 
 colnames(dados_pca$x) <- c("Repressão Policial", "Crimes com armas e drogas")
 
 scores <- as_tibble(dados_pca$x) %>%
@@ -92,5 +92,39 @@ ggplot(scores, aes(x = `Repressão Policial`, y = `Crimes com armas e drogas`, l
 
 
 # #6 ----------------------------------------------------------------------
+#6.1
+set.seed(123)
+dados_kmeans <- scores %>% select(`Repressão Policial`, `Crimes com armas e drogas`)
+num_clusters <- 1:10
+fviz_nbclust(dados_kmeans, kmeans, method = "wss") +
+  labs(title = "Método do Cotovelo para ver numero otimo Clusters",
+       x = "Número de Clusters",
+       y = "Soma das Distâncias Quadradas")
+# pelo visto temos que o numero otimo e de aproximadamente 7 (ha mum decrescimo significativo entre 6 e 7)
 
+#6.2
+k<-4
+# notamos com o grafico que 7 foi um valor muito alto, entao reduzimos para 4
+kmeans_result <- kmeans(dados_kmeans, centers = k, nstart = 25)
+scores <- scores %>%
+  mutate(Cluster = as.factor(kmeans_result$cluster))  
+
+ggplot(scores, aes(x = `Repressão Policial`, y = `Crimes com armas e drogas`, color = Cluster, label = Regiao)) +
+  geom_point(size = 3) +
+  geom_text_repel() +
+  labs(title = "Distribuição das Regiões nas Duas Primeiras Componentes Principais com Clusters",
+       x = "Repressão Policial",
+       y = "Crimes com armas e drogas") +
+  theme_minimal() +
+  scale_color_manual(values = rainbow(k)) 
+
+#6.3
+# Podemos notar que os 4 grupos gerados, se diferenciam principalmente entre os com alta repressao e alta cirminalidade (2),
+# baixa criminalidade e baixa repressão(1), e os que possuem um valor intermediario de ambas (3,4)
+
+#6.4
+#Podemos realizar uma realocação das forças de segurança publica, dads cidades com o cluster em vermelho para as com o cluster verde. 
+# Além disso podemos notar que as cidades com maior indice de criminalidade também são as com menor repressão policial, podendo assim
+# indicar a presença de mílicias, o que dificuta o trabalho policial por ter corrupção interna. Assim sendo necessita-se de uma maior 
+# fiscalização tanto nas ruas quanto internamente na policia para garantri um melhor funcionamento das politicas de segurança publica
 
