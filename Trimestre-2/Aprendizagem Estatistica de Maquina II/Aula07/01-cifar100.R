@@ -4,13 +4,11 @@
 # Dados: imagens classificadas cifar100
 
 # Pacotes utilizados ------------------------------------------------------
-library(tidyverse) 
+library(tidyverse)
 library(keras) # rede neural
 library(jpeg) # visualizar imagem
 library(Metrics) # calculo de metricas
 library(Matrix) # representacao de matriz esparca
-
-tensorflow::tf$config$list_physical_devices("GPU")
 
 # Dados CIFAR100 ----------------------------------------------------------
 # Fonte: https://www.cs.toronto.edu/~kriz/cifar.html
@@ -40,15 +38,11 @@ x_test <- x_test / 255
 
 # one-hot enconding para as categorias da variavel resposta
 # (classe de cada imagem)
-#y_train <- keras3::to_categorical(y=g_train, num_classes=100, dtype="int")
-factor_g_train <- factor(g_train, levels = sort(unique(g_train)))
-y_train <- model.matrix(~ factor_g_train - 1)
-
-# to_categorical(g_train)
+y_train <- to_categorical(g_train, 100)
 
 dim(y_train) # uma matriz com 50000 linhas e 100 colunas
 
-# View(y_train)
+View(y_train)
 
 
 # Identificacao das classes -----------------------------------------------
@@ -231,36 +225,23 @@ evaluate(model, x_test,
          to_categorical(g_test, 100))
 
 # obter predicoes
-# Obter predições
 pred <- model %>% 
   predict(x_test) %>% 
-  apply(1, which.max) %>%  # Substituindo k_argmax() por apply + which.max
+  k_argmax() %>% 
   as.vector()
 
 # comparativo
-# Certifique-se de que a classificação começa em 0 ou 1, conforme necessário
-res <- tibble(y = factor(g_test, labels = labels), 
-              y_hat = factor(pred, labels = labels))
+res <- tibble(y = labels[g_test+1], 
+              y_hat = labels[pred+1])
 
-res2 <- res %>% 
-  mutate(comparativo = y == y_hat) 
-
-res2 %>%summarize(sum(comparativo))#soma os valores TRUE
-
-res2%>% 
+res %>% 
+  mutate(comparativo = y == y_hat) %>% 
   summarize(prop = sum(comparativo) / n())
 
 # obter os pesos treinados
-weights <- keras3::get_weights(model)
+weights <- keras::get_weights(model)
 
 save_model_hdf5(model, "pesos.h5")
-# Salvar o modelo no formato .h5
-model %>% save_model("pesos.h5")
-
-# Salvar o modelo no formato .keras (novo formato recomendado)
-model %>% save_model("pesos.keras")
-
-
 
 # Para usar os pesos salvos de uma rede neural estimada no keras, você precisará 
 # carregar esses pesos em uma nova instância do modelo com a mesma arquitetura.
