@@ -50,3 +50,69 @@ ggplot(formas_pagamento, aes(x = n_milhares, y = reorder(types, n_milhares))) +
     axis.ticks = element_blank()                                    # Remover ticks dos eixos
   ) +
   xlim(0, max(formas_pagamento$n_milhares) * 1.1)  # Espaço adicional para os rótulos
+
+
+items_agg <- olist |>
+  group_by(product_category_name) |>
+  filter(n() > 4000) |>
+  ungroup() |>
+  filter(product_category_name != "ferramentas_jardim") |>
+  mutate(
+    product_category_name = stringr::str_replace_all(
+      product_category_name, "_", " "
+    ),
+    product_category_name = stringr::str_to_title(product_category_name),
+    product_category_name = fct_reorder(
+      product_category_name, price, median
+    ),
+    relogios = ifelse(
+      product_category_name == "Relogios Presentes",
+      "destacar", "não destacar"
+    )
+  )
+
+mediana <- items_agg |>
+  summarise(mediana = median(price))
+
+items_agg |>
+  ggplot() +
+  aes(x = price, y = product_category_name, fill = relogios) +
+  ggridges::geom_density_ridges(
+    quantile_lines = TRUE,
+    quantiles = 2,
+    na.rm = FALSE,
+    n = 2048,
+    show.legend = FALSE
+  ) +
+  scale_x_continuous(
+    limits = c(0, NA),
+    labels = scales::dollar_format(prefix = "R$")
+  ) +
+  coord_cartesian(xlim = c(0, 300)) +
+  geom_vline(
+    aes(xintercept = mediana),
+    data = mediana,
+    linetype = 2,
+    colour = "red"
+  ) +
+  scale_fill_manual(
+    values = c("#6686e6", "#eaeaea")
+  ) +
+  theme_minimal() +
+  annotate(
+    "text",
+    x = mediana$mediana,
+    y = 0.8,
+    hjust = -0.1,
+    label = "Mediana",
+    colour = "red",
+    size = 3
+  ) +
+  labs(
+    x = "Preço",
+    y = "Categoria",
+    title = "Relógios são caros!!"
+  ) +
+  theme(
+    plot.title.position = "plot"
+  )
