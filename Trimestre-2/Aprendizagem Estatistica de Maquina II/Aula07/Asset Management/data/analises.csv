@@ -1,0 +1,129 @@
+asset,data_inicio,data_fim,n_dias,prompt,analise
+PETR4,2024-06-03,2024-06-07,4,"Ativo: PETR4
+Empresa: Petrobras
+
+Lista de títulos de notícias:
+                 06/06: Petrobras (PETR4) irá retomar atividades em fábrica de fertilizantes no Paraná paralisada desde 2020 
+ 06/06: Eletrobras vai captar R$ 10,9 bi e Petrobras avalia 'iniciativas verdes' com Sinosure 
+ 06/06: Vale (VALE3) e Petrobras (PETR4) surfam no corte de juros da Zona do Euro
+
+Você está atuando como analista financeiro em 2024-06-07, 
+avaliando a performance recente do ativo PETR4, 
+que registrou uma variação de -4.25% 
+nos últimos 4 dias. Sua tarefa é realizar uma 
+análise focada nos eventos dos últimos 4 dias apresentados na 
+lista acima, fornecendo uma perspectiva 
+fundamentada sobre a situação atual da empresa Petrobras.
+
+Por favor, siga estas diretrizes:
+
+Inicie a análise com uma visão geral clara da situação.
+Mencione a performance do ativo no período.
+Destaque os eventos mais recentes e relevantes.
+Enfatize os contrastes entre diferentes eventos e conclua com uma síntese ponderada.
+Inclua exclusivamente informações que estão presentes neste prompt.
+Evite redundâncias e repetições na resposta.
+Estruture a análise em um parágrafo único.
+
+Modelo da análise: 'Com base nas notícias dos últimos 4 dias... (análise)...
+Portanto, (conclusão).'","Com base nas notícias dos últimos 4 dias, a Petrobras (PETR4) está passando por uma série de eventos significativos. A empresa está programada para retomar as atividades em uma fábrica de fertilizantes no Paraná, o que pode representar uma oportunidade de expansão e aumento de produção. Por outro lado, a Eletrobras está captando um valor significativo e a Petrobras está considerando iniciativas verdes com Sinosure, indicando uma possível aposta em sustentabilidade e energias renováveis. Além disso, a Vale (VALE3) e a Petrobras (PETR4) estão se beneficiando do corte de juros na Zona do Euro, o que pode impulsionar suas operações e lucratividade. No entanto, a PETR4 registrou uma variação negativa de -4.25% nos últimos 4 dias, o que pode ser reflexo de instabilidades externas ou desafios internos da empresa. Portanto, a Petrobras parece estar buscando oportunidades de crescimento e sustentabilidade, mas a variação negativa do ativo PETR4 sugere uma certa volatilidade que merece atenção e monitoramento contínuo."
+PETR4,2024-06-10,2024-06-14,4,"Ativo: PETR4
+Empresa: Petrobras
+
+Lista de títulos de notícias:
+                 10/06: Petrobras (PETR4) guia ganhos do Ibovespa, mas clima é de cautela antes de Fed 
+ 10/06: Ibovespa oscila com grandes bancos em queda; Vale (VALE3) e Petrobras (PETR4) sobem 
+ 10/06: Petrobras (PETR4) não precisa convocar assembleia-geral, determina conselho de administração 
+ 11/06: Petrobras (PETR3;PETR4) eleva valor a ser pago por ação em proventos 
+ 11/06: Petrobras (PETR4) ajusta valor de ação para dividendos e JCP 
+ 13/06: Petrobras (PETR4) se prepara para explorar novos poços do pré-sal em 2025 
+ 13/06: Petrobras (PETR4) irá perfurar novos poços do pré-sal em 2025 para garantir futuro da bacia de Campos 
+ 13/06: Petrobras (PETR4): exploração na Margem Equatorial pode gerar 30 bilhões de barris de petróleo 
+ 13/06: PetroRecôncavo define pagamento de JCP e Petrobras recontratará trabalhadores da ANSA 
+ 14/06: Presidente da Petrobras indica Fernando Melgarejo como CFO e mais 2 novas diretoras 
+ 14/06: Ativa: o que a indicação de diretor financeiro diz sobre a Petrobras (PETR4)? 
+ 14/06: Petrobras (PETR4) cai em meio a anúncio de nova diretoria 
+ 14/06: Petrobras (PETR4) anuncia indicação de três novos diretores 
+ 14/06: Petrobras (PETR4), Vale (VALE3) e mais 9 ações que ganham com o dólar a R$ 5,40  e outras 6 que perdem
+
+Você está atuando como analista financeiro em 2024-06-14, 
+avaliando a performance recente do ativo PETR4, 
+que registrou uma variação de -5.12% 
+nos últimos 4 dias. Sua tarefa é realizar uma 
+análise focada nos eventos dos últimos 4 dias apresentados na 
+lista acima, fornecendo uma perspectiva 
+fundamentada sobre a situação atual da empresa Petrobras.
+
+Por favor, siga estas diretrizes:
+
+Inicie a análise com uma visão geral clara da situação.
+Mencione a performance do ativo no período.
+Destaque os eventos mais recentes e relevantes.
+Enfatize os contrastes entre diferentes eventos e conclua com uma síntese ponderada.
+Inclua exclusivamente informações que estão presentes neste prompt.
+Evite redundâncias e repetições na resposta.
+Estruture a análise em um parágrafo único.
+
+Modelo da análise: 'Com base nas notícias dos últimos 4 dias... (análise)...
+Portanto, (conclusão).'","Com base nas notícias dos últimos 4 dias, a Petrobras (PETR4) apresentou uma performance negativa, com uma variação de -5.12%. As últimas notícias destacam a elevação do valor a ser pago por ação em proventos, ajustes nos valores de ação para dividendos e JCP, preparativos para exploração de novos poços do pré-sal em 2025 e a indicação de novos diretores. No entanto, a empresa também enfrentou queda no valor das ações em meio ao anúncio da nova diretoria. A diversidade de eventos revela um cenário de movimentação intensa na empresa, com medidas que visam garantir o futuro do setor de petróleo e gás, mas que também geram volatilidade no mercado. Portanto, a situação da Petrobras se mostra dinâmica e sujeita a oscilações, com desafios e oportunidades em jogo."
+VALE3,2024-06-03,2024-06-07,4,"Ativo: VALE3
+Empresa: Vale S.A.
+
+Lista de títulos de notícias:
+                 07/06: Vale (VALE3) entra na lista suja do trabalho escravo do governo 
+ 07/06: Apesar da queda de Vale (VALE3), cenário se mostra melhor do que no começo de 2024; veja por que 
+ 07/06: Ibovespa aumenta queda após dados de emprego nos EUA e perde os 121 mil pontos; Vale (VALE3) e Petrobras (PETR4) caem 
+ 07/06: Vale (VALE3) diz que foi incluída por engano em 'lista suja' de trabalho escravo do Ministério do Trabalho 
+ 07/06: 'Mercado errou 100% dos anos', diz CFO da Vale (VALE3) sobre projeções para o minério de ferro
+
+Você está atuando como analista financeiro em 2024-06-07, 
+avaliando a performance recente do ativo VALE3, 
+que registrou uma variação de -2.36% 
+nos últimos 4 dias. Sua tarefa é realizar uma 
+análise focada nos eventos dos últimos 4 dias apresentados na 
+lista acima, fornecendo uma perspectiva 
+fundamentada sobre a situação atual da empresa Vale S.A..
+
+Por favor, siga estas diretrizes:
+
+Inicie a análise com uma visão geral clara da situação.
+Mencione a performance do ativo no período.
+Destaque os eventos mais recentes e relevantes.
+Enfatize os contrastes entre diferentes eventos e conclua com uma síntese ponderada.
+Inclua exclusivamente informações que estão presentes neste prompt.
+Evite redundâncias e repetições na resposta.
+Estruture a análise em um parágrafo único.
+
+Modelo da análise: 'Com base nas notícias dos últimos 4 dias... (análise)...
+Portanto, (conclusão).'","Com base nas notícias dos últimos 4 dias, a Vale S.A. e seu ativo VALE3 enfrentaram uma série de desafios e eventos importantes. A empresa foi incluída na lista suja do trabalho escravo do governo, o que gerou repercussões negativas e desconfiança dos investidores. Além disso, houve uma queda de 2.36% no valor do ativo VALE3, refletindo a pressão do mercado em relação às notícias desfavoráveis. No entanto, a empresa se defendeu, alegando ter sido incluída por engano na lista. Por outro lado, o CFO da Vale (VALE3) expressou otimismo em relação ao mercado de minério de ferro, destacando a volatilidade das projeções anteriores. Portanto, diante desses eventos contrastantes, a situação atual da Vale S.A. parece instável e sujeita a incertezas, com a necessidade de esclarecimentos para reconquistar a confiança dos investidores."
+VALE3,2024-06-10,2024-06-14,4,"Ativo: VALE3
+Empresa: Vale S.A.
+
+Lista de títulos de notícias:
+                 10/06: Vale Indonesia diz que Febriany Eddy foi renomeada como CEO 
+ 12/06: VALE (VALE3): GOVERNO FEDERAL PODE CHEGAR A ACORDO SOBRE FERROVIAS ESTE MÊS, DIZ MINISTRO 
+ 13/06: Vale (VALE3): CEO faz estimativa para vendas de minério de ferro e destaca transição energética 
+ 13/06: O dólar já subiu 10% em 2024: essas são as 5 ações para lucrar com o real fraco, segundo o BTG Pactual 
+ 14/06: VALE (VALE3): O EVENTO QUE PODE REDUZIR RISCO PARA A MINERADORA, SEGUNDO BBI 
+ 14/06: Vale (VALE3) afirma que procura parceiros para plataforma de energia
+
+Você está atuando como analista financeiro em 2024-06-14, 
+avaliando a performance recente do ativo VALE3, 
+que registrou uma variação de -0.74% 
+nos últimos 4 dias. Sua tarefa é realizar uma 
+análise focada nos eventos dos últimos 4 dias apresentados na 
+lista acima, fornecendo uma perspectiva 
+fundamentada sobre a situação atual da empresa Vale S.A..
+
+Por favor, siga estas diretrizes:
+
+Inicie a análise com uma visão geral clara da situação.
+Mencione a performance do ativo no período.
+Destaque os eventos mais recentes e relevantes.
+Enfatize os contrastes entre diferentes eventos e conclua com uma síntese ponderada.
+Inclua exclusivamente informações que estão presentes neste prompt.
+Evite redundâncias e repetições na resposta.
+Estruture a análise em um parágrafo único.
+
+Modelo da análise: 'Com base nas notícias dos últimos 4 dias... (análise)...
+Portanto, (conclusão).'","Com base nas notícias dos últimos 4 dias relacionadas à Vale S.A., observamos que a empresa está passando por mudanças significativas e buscando parcerias estratégicas. A renomeação do CEO da subsidiária indonésia e a procura por parceiros para uma plataforma de energia indicam um movimento em direção à diversificação dos negócios e uma abordagem mais sustentável. Além disso, a estimativa do CEO para as vendas de minério de ferro e a possível redução de riscos mencionada pelo BBI podem trazer impactos positivos para a empresa. Por outro lado, a incerteza em relação a um acordo sobre ferrovias com o governo federal pode representar um desafio. Apesar da variação negativa de -0.74% no preço do ativo VALE3 nos últimos 4 dias, a empresa parece estar buscando novas oportunidades e se adaptando às demandas do mercado. Portanto, é importante acompanhar de perto como esses eventos influenciarão a trajetória da Vale S.A. no curto e médio prazo."
