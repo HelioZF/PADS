@@ -1,0 +1,44 @@
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+
+# Lista de palavras fornecidas
+dados = """
+PowerBI
+Power BI
+ggplot
+matplotlib
+Looker Studio
+Power BI
+Looker, ggplot, QlikSense
+Power BI, Tableau, Metabase, matplotlib
+Powerbi
+Ggplot
+Power BI
+Varia bastante, ja usei bibliotecas em python, powerBI, e até mesmo Excel e powerpoint
+Tableau
+power bi
+Já fui analista de dados e fiz muitas dashboards em ferramentas de visualizações (power bi, aws quicksight, google studio, mas recentemente python.
+Pouca experiência - na agênca usam modelos próprios programadados em python e looker do google
+Ggplot
+PowerBI
+"""
+
+# Normalizar o texto para evitar duplicatas causadas por diferenças de maiúsculas/minúsculas
+dados = dados.lower()
+
+def processar_texto(texto):
+    # Remover caracteres especiais e separar por vírgulas e espaços
+    palavras = texto.replace("\n", ", ").replace("-", " ").split(", ")
+    palavras = [p.strip() for p in palavras if p.strip()]
+    return " ".join(palavras)
+
+texto_processado = processar_texto(dados)
+
+# Criar a nuvem de palavras
+wordcloud = WordCloud(width=800, height=400, background_color='white', colormap='viridis').generate(texto_processado)
+
+# Exibir a nuvem de palavras
+plt.figure(figsize=(10, 5))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis("off")
+plt.show()
